@@ -12,10 +12,10 @@ import (
 )
 
 // InitiateAsync initializes a propagated storage datastore with a dynamo db driver asynchronously.
-func InitiateAsync(sess *session.Session, datastore *propagatedstorage.Datastore, tableName string, errors []error, wg *sync.WaitGroup) {
+func InitiateAsync(sess *session.Session, datastore *propagatedstorage.Datastore, tableName string, errors *[]error, wg *sync.WaitGroup) {
 	docstore, err := InitiateSync(sess, tableName)
 	if err != nil {
-		errors = append(errors, err)
+		*errors = append(*errors, err)
 	} else {
 		*datastore = docstore
 	}
