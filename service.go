@@ -25,7 +25,7 @@ type service struct {
 // - fallbackService is the propagated storage service to fall back to if version is outdated, this is most likely a HTTP service client that asks service owning the data that is propagated
 // - requiredVersion is the version required for this propagation "contract", provides a way to resync data on the fly if they ever get out of sync
 // - itemType is the type of the propagated item
-func NewService(ctx context.Context, datastore Datastore, itemType Type, fallbackService Service, requiredVersion int) Service {
+func NewService(datastore Datastore, itemType Type, fallbackService Service, requiredVersion int) Service {
 	return &service{
 		datastore:       datastore,
 		service:         fallbackService,
