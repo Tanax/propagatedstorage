@@ -1,7 +1,6 @@
 package dynamodb
 
 import (
-	"context"
 	"fmt"
 	"sync"
 
@@ -13,8 +12,8 @@ import (
 )
 
 // InitiateAsync initializes a propagated storage datastore with a dynamo db driver asynchronously.
-func InitiateAsync(ctx context.Context, sess *session.Session, datastore *propagatedstorage.Datastore, tableName string, errors []error, wg *sync.WaitGroup) {
-	docstore, err := InitiateSync(ctx, sess, tableName)
+func InitiateAsync(sess *session.Session, datastore *propagatedstorage.Datastore, tableName string, errors []error, wg *sync.WaitGroup) {
+	docstore, err := InitiateSync(sess, tableName)
 	if err != nil {
 		errors = append(errors, err)
 	} else {
@@ -25,9 +24,9 @@ func InitiateAsync(ctx context.Context, sess *session.Session, datastore *propag
 }
 
 // InitiateSync initializes a propagated storage datastore with a dynamo db driver synchronously.
-func InitiateSync(ctx context.Context, sess *session.Session, tableName string) (propagatedstorage.Datastore, error) {
+func InitiateSync(sess *session.Session, tableName string) (propagatedstorage.Datastore, error) {
 	if sess == nil {
-		return nil, fmt.Errorf("failed to open collection propagated storage: %w", ErrMissingSession)
+		return nil, fmt.Errorf("failed to open collection propagated storage: %w", propagatedstorage.ErrMissingDatastoreSession)
 	}
 
 	if tableName == "" {
@@ -36,7 +35,7 @@ func InitiateSync(ctx context.Context, sess *session.Session, tableName string) 
 
 	driver, err := awsdynamodb.OpenCollection(ddb.New(sess), tableName, "Type", "ID", nil)
 	if err != nil {
-		return nil, fmt.Errorf("failed to open collection propagated storage: %w", ErrFailedToInitiate.Wrap(err))
+		return nil, fmt.Errorf("failed to open collection propagated storage: %w", propagatedstorage.ErrInitiateDatastoreDriver.Wrap(err))
 	}
 
 	return documentstore.New(driver), nil

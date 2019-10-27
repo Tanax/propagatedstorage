@@ -2,6 +2,7 @@ package propagatedstorage
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 )
@@ -24,7 +25,7 @@ type service struct {
 // - fallbackService is the propagated storage service to fall back to if version is outdated, this is most likely a HTTP service client that asks service owning the data that is propagated
 // - requiredVersion is the version required for this propagation "contract", provides a way to resync data on the fly if they ever get out of sync
 // - itemType is the type of the propagated item
-func NewService(datastore Datastore, itemType Type, fallbackService Service, requiredVersion int) Service {
+func NewService(ctx context.Context, datastore Datastore, itemType Type, fallbackService Service, requiredVersion int) Service {
 	return &service{
 		datastore:       datastore,
 		service:         fallbackService,
@@ -40,26 +41,31 @@ func (s *service) Get(ctx context.Context, item Item) error {
 
 	if err := s.get(ctx, model); err != nil {
 		if !errors.Is(err, ErrVersionOutdated) || s.service == nil {
-			return err
+			return fmt.Errorf("could not get item with id '%s': %w", item.GetID(), err)
 		}
 
 		if err := s.service.Get(ctx, item); err != nil {
-			return err
+			return fmt.Errorf("could not get item with id '%s': %w", item.GetID(), ErrFetchItemFromService.Wrap(err))
 		}
 
 		if err := s.Save(ctx, item); err != nil {
-			return err
+			return fmt.Errorf("could not get item with id '%s': %w", item.GetID(), err)
 		}
 
 		return nil
 	}
 
-	return item.PopulateFromItem(model.Item)
+	marshalled, err := json.Marshal(model.Item)
+	if err != nil {
+		return fmt.Errorf("could not get item with id '%s': %w", item.GetID(), ErrParsingItem.Wrap(err))
+	}
+
+	return item.PopulateFromItem(marshalled)
 }
 
 func (s *service) get(ctx context.Context, model *Model) error {
 	if err := s.datastore.Get(ctx, model); err != nil {
-		return fmt.Errorf("failed to get propagated storage model with id '%s': %w", model.ID, ErrDatastoreFailed.Wrap(err))
+		return fmt.Errorf("could not get propagated storage model: %w", ErrDatastoreFailed.Wrap(err))
 	}
 
 	if s.requiredVersion > 0 && s.requiredVersion > model.Version {

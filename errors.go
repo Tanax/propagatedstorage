@@ -37,4 +37,12 @@ var (
 	ErrVersionOutdated = NewError("version outdated")
 	// ErrDatastoreFailed ..
 	ErrDatastoreFailed = NewError("datastore failed")
+	// ErrMissingDatastoreSession ..
+	ErrMissingDatastoreSession = NewError("session not found")
+	// ErrInitiateDatastoreDriver ..
+	ErrInitiateDatastoreDriver = NewError("failed to initiate driver")
+	// ErrFetchItemFromService ..
+	ErrFetchItemFromService = NewError("failed to fetch item from fallback service")
+	// ErrParsingItem ..
+	ErrParsingItem = NewError("failed when parsing propagated item")
 )

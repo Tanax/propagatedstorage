@@ -29,7 +29,7 @@ type Item interface {
 	GetCurrentVersion() int
 	GetID() string
 	GetType() Type
-	PopulateFromItem(item Item) error
+	PopulateFromItem(item []byte) error
 }
 
 // Type declares how a propagated item type looks
