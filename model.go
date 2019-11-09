@@ -16,21 +16,11 @@ type Model struct {
 }
 
 // NewModel creates a new propagated data model
-func NewModel(id string, itemType Type) *Model {
+func NewModel(id string, itemType Type, version int) *Model {
 	model := new(Model)
 	model.ID = id
 	model.Type = itemType
+	model.Version = version
 
 	return model
 }
-
-// Item describes how a propagated data item should look
-type Item interface {
-	GetCurrentVersion() int
-	GetID() string
-	GetType() Type
-	PopulateFromItem(item []byte) error
-}
-
-// Type declares how a propagated item type looks
-type Type string

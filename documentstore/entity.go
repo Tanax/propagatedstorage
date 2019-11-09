@@ -6,7 +6,8 @@ import (
 	"github.com/Tanax/propagatedstorage"
 )
 
-type entity struct {
+// Entity defines how our documents store entity looks like.
+type Entity struct {
 	ID      string
 	Type    propagatedstorage.Type
 	Version int
@@ -16,7 +17,7 @@ type entity struct {
 	Modified time.Time
 }
 
-func (e *entity) populateModel(model *propagatedstorage.Model) error {
+func (e *Entity) populateModel(model *propagatedstorage.Model) error {
 	model.ID = e.ID
 	model.Type = e.Type
 	model.Item = e.Item
@@ -27,8 +28,9 @@ func (e *entity) populateModel(model *propagatedstorage.Model) error {
 	return nil
 }
 
-func newEntityFromModel(model *propagatedstorage.Model) (*entity, error) {
-	e := new(entity)
+// NewFromModel creates a new Entity based on a Model.
+func NewFromModel(model *propagatedstorage.Model) (*Entity, error) {
+	e := new(Entity)
 
 	e.ID = model.ID
 	e.Type = model.Type
